@@ -5,7 +5,7 @@ import json
 import requests
 
 parser = argparse.ArgumentParser(description='Generate M3U playlist full of strange videos')
-parser.add_argument('--board', action="store", dest="board", type=str, required=True)
+parser.add_argument('--board', action="store", dest="board", type=str, help="Codename of the desk; String;", required=True)
 args = parser.parse_args()
 
 
@@ -38,4 +38,5 @@ get_threads_list(args.board)
 thread_list = get_threads_list(args.board)
 webm_list = gen_webm_list(args.board, thread_list)
 write_m3u_playlist(webm_list)
+
 print('All done!', len(webm_list), '<:::> videos found!')
