@@ -1,7 +1,12 @@
 #!/usr/bin/env python
 
+import argparse
 import json
 import requests
+
+parser = argparse.ArgumentParser(description='Generate M3U playlist full of strange videos')
+parser.add_argument('--board', action="store", dest="board", type=str, required=True)
+args = parser.parse_args()
 
 
 def get_threads_list(board):
@@ -15,7 +20,8 @@ def get_webm_links(board, thread_list):
         files_list = [element['files'] for element in posts_list if element['files']]
         yield [element[0]['path'] for element in files_list if 'webm' in element[0]['path'] or 'mp4' in element[0]['path']]
 
-def gen_webm_list(board, thread_list, result=[]):
+def gen_webm_list(board, thread_list):
+    result = []
     for item in get_webm_links(board, thread_list):
         result += item
     return list(map("http://2ch.hk".__add__, result))
@@ -28,8 +34,8 @@ def write_m3u_playlist(webm_set):
         file.write(item + "\n")
     file.close()
 
-board = 'b'
-get_threads_list(board)
-thread_list = get_threads_list(board)
-webm_list = get_webm_links(board, thread_list)
+get_threads_list(args.board)
+thread_list = get_threads_list(args.board)
+webm_list = gen_webm_list(args.board, thread_list)
 write_m3u_playlist(webm_list)
+print('All done!', len(webm_list), '<:::> videos found!')
