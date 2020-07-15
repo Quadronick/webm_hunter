@@ -5,7 +5,7 @@ import json
 import requests
 
 parser = argparse.ArgumentParser(description='Generate M3U playlist full of strange videos')
-parser.add_argument('--board', action="store", dest="board", type=str, help="Codename of the desk; String;", required=True)
+parser.add_argument('--board', action="store", dest="board", type=str, help="Codename of the board; String;", required=True)
 args = parser.parse_args()
 
 
