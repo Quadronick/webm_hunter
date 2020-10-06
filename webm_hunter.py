@@ -1,7 +1,6 @@
 #!/usr/bin/env python
 
 import argparse
-import json
 import requests
 
 parser = argparse.ArgumentParser(description='Generate M3U playlist full of strange videos')
