@@ -2,10 +2,18 @@
 
 import argparse
 import requests
+import sys
 
 parser = argparse.ArgumentParser(description='Generate M3U playlist full of strange videos')
-parser.add_argument('--board', action="store", dest="board", type=str, help="Codename of the board; String;", required=True)
+parser.add_argument('--board', action="store", type=str, help="Codename of the board; e.g a, b, rf, wh...", required=True)
+parser.add_argument('--verbose', action="store_true", help="Increase output verbosity")
 args = parser.parse_args()
+
+
+def progress_bar(index, max_index):
+    sys.stdout.write('\r')
+    status = round(index / max_index * 50)
+    sys.stdout.write('[' + status * '*' + (50 - status) *' ' + ']')
 
 
 def get_threads_list(board):
@@ -14,6 +22,8 @@ def get_threads_list(board):
 
 def get_webm_links(board, thread_list):
     for index in range(len(thread_list)):
+        if args.verbose:
+            progress_bar(index, len(thread_list))
         thread_json = requests.get('https://2ch.hk/' + board + '/res/' + thread_list[index] + '.json')
         posts_list = [element for element in thread_json.json()['threads'][0]['posts']]
         files_list = [element['files'] for element in posts_list if element['files']]
@@ -33,9 +43,10 @@ def write_m3u_playlist(webm_set):
         file.write(item + "\n")
     file.close()
 
-get_threads_list(args.board)
 thread_list = get_threads_list(args.board)
+if args.verbose:
+    print("Got", len(thread_list), "threads!" )
 webm_list = gen_webm_list(args.board, thread_list)
 write_m3u_playlist(webm_list)
-
+print('\n')
 print('All done!', len(webm_list), '<:::> videos found!')
