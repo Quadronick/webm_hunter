@@ -10,10 +10,12 @@ parser.add_argument('--verbose', action="store_true", help="Increase output verb
 args = parser.parse_args()
 
 
-def progress_bar(index, max_index):
+def progress_bar(index, max_index, thread_name, files_found):
     sys.stdout.write('\r')
     status = round(index / max_index * 50)
-    sys.stdout.write('[' + status * '*' + (50 - status) *' ' + ']')
+    info = (thread_name[:35] + '..') if len(thread_name) > 35 else thread_name
+    sys.stdout.write('[' + status * '*' + (50 - status) *' ' + ']' + ' ' + str(len(files_found)) + ' ' + info)
+    sys.stdout.write('\r')
 
 
 def get_threads_list(board):
@@ -22,11 +24,11 @@ def get_threads_list(board):
 
 def get_webm_links(board, thread_list):
     for index in range(len(thread_list)):
-        if args.verbose:
-            progress_bar(index, len(thread_list))
         thread_json = requests.get('https://2ch.hk/' + board + '/res/' + thread_list[index] + '.json')
         posts_list = [element for element in thread_json.json()['threads'][0]['posts']]
         files_list = [element['files'] for element in posts_list if element['files']]
+        if args.verbose:
+            progress_bar(index, len(thread_list), thread_json.json()['title'], files_list)
         yield [element[0]['path'] for element in files_list if 'webm' in element[0]['path'] or 'mp4' in element[0]['path']]
 
 def gen_webm_list(board, thread_list):
