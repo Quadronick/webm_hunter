@@ -28,13 +28,14 @@ def get_threads_list(board: str) -> list:
 
 def get_webm_links(board: str, thread_list: list):
     for index in range(len(thread_list)):
-        thread_json = requests.get('https://2ch.hk/' + board + '/res/' + thread_list[index] + '.json')
+        thread_json = requests.get('https://2ch.hk/' + board + '/res/' + str(thread_list[index]) + '.json')
         if args.filter in thread_json.json()['title'].lower():
             posts_list = [element for element in thread_json.json()['threads'][0]['posts']]
             files_list = [element['files'] for element in posts_list if element['files']]
+            flat_list = [element for innerList in files_list for element in innerList]
             if args.verbose:
-                progress_bar(index, len(thread_list), thread_json.json()['title'], str(len(files_list)))
-            yield [element[0]['path'] for element in files_list if 'webm' in element[0]['path'] or 'mp4' in element[0]['path']]
+                progress_bar(index, len(thread_list), thread_json.json()['title'], str(len(flat_list)))
+            yield [element['path'] for element in flat_list if '.webm' in element['path'] or '.mp4' in element['path']]
 
 def gen_webm_list(board: str, thread_list: list) -> list:
     result = []
