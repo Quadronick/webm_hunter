@@ -32,7 +32,7 @@ parser.add_argument(
     required=False,
 )
 parser.add_argument(
-    "--verbose",
+    "--verbose", "-v",
     action="store_true",
     help="Increase output verbosity",
     required=False,
