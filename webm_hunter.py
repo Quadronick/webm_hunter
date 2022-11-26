@@ -16,11 +16,19 @@ parser.add_argument(
     required=True,
 )
 parser.add_argument(
+    "--exclude",
+    "-e",
+    action="store",
+    type=str,
+    help="String to exclude from search in threads titles.",
+    required=False,
+)
+parser.add_argument(
     "--filter",
     "-f",
     action="store",
     type=str,
-    help="String for searching in thread titles.",
+    help="String for searching in threads titles.",
     required=False,
 )
 parser.add_argument(
@@ -32,7 +40,8 @@ parser.add_argument(
     required=False,
 )
 parser.add_argument(
-    "--verbose", "-v",
+    "--verbose",
+    "-v",
     action="store_true",
     help="Increase output verbosity",
     required=False,
@@ -67,7 +76,12 @@ def get_threads_list(board_id: str) -> list:
 
 def get_filtered_threads_list(board_id: str, filter: str) -> list:
     board_json = requests.get("https://2ch.hk/" + board_id + "/threads.json")
-    return [k["num"] for k in board_json.json()["threads"] if filter in k["subject"]]
+    return [k["num"] for k in board_json.json()["threads"] if filter.lower() in k["subject"].lower()]
+
+
+def get_excluded_threads_list(board_id: str, exclude: str) -> list:
+    board_json = requests.get("https://2ch.hk/" + board_id + "/threads.json")
+    return [k["num"] for k in board_json.json()["threads"] if exclude.lower() not in k["subject"].lower()]
 
 
 def get_thread_json(board_id: str, thread_id: str) -> dict:
@@ -124,6 +138,8 @@ def write_m3u_playlist(webm_set: list, output: str):
 
 if args.filter:
     thread_list = get_filtered_threads_list(args.board, args.filter)
+elif args.exclude:
+    thread_list = get_excluded_threads_list(args.board, args.exclude)
 else:
     thread_list = get_threads_list(args.board)
 
