@@ -1,5 +1,6 @@
 #!/usr/bin/env python
 
+from typing import List, Generator
 import argparse
 import requests
 import sys
@@ -62,7 +63,7 @@ def progress_bar_info(thread_name: str) -> str:
     return (thread_name[:35] + "...") if len(thread_name) > 35 else thread_name
 
 
-def draw_progress_bar(index: int, max_index: int, thread_name: str, files_found: str):
+def draw_progress_bar(index: int, max_index: int, thread_name: str, files_found: str) -> None:
     """
     Draws a progress bar to the console with the given index, max_index, thread_name, and files_found.
 
@@ -182,7 +183,7 @@ def get_flatten_list(value: list) -> list:
     return [k for innerList in value for k in innerList]
 
 
-def get_webm_links(board_id: str, thread_list: list):
+def get_webm_links(board_id: str, thread_list: list) -> Generator[List[str], None, None]:
     """Generator that returns a list of webm/mp4 links in threads in the given board.
 
     Args:
@@ -226,7 +227,7 @@ def gen_webm_list(board_id: str, thread_list: list) -> list:
     return list(map("http://2ch.hk".__add__, result))
 
 
-def write_m3u_playlist(webm_set: list, output: str):
+def write_m3u_playlist(webm_set: list, output: str) -> None:
     """Writes a playlist file in M3U format with the specified URLs.
 
     Args:
@@ -239,17 +240,17 @@ def write_m3u_playlist(webm_set: list, output: str):
         file.writelines(lines)
 
 
-if args.filter:
-    thread_list = get_filtered_threads_list(args.board, args.filter)
-elif args.exclude:
-    thread_list = get_excluded_threads_list(args.board, args.exclude)
-else:
-    thread_list = get_threads_list(args.board)
+thread_list = (
+    get_filtered_threads_list(args.board, args.filter)
+    if args.filter
+    else (
+        get_excluded_threads_list(args.board, args.exclude)
+        if args.exclude
+        else get_threads_list(args.board)
+    )
+)
 
-if args.output:
-    output = args.output
-else:
-    output = "./webm.m3u"
+output = args.output or "./webm.m3u"
 
 if args.verbose:
     print("Got", len(thread_list), "threads!")
