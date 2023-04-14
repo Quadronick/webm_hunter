@@ -183,7 +183,16 @@ def get_flatten_list(value: list) -> list:
     return [k for innerList in value for k in innerList]
 
 
-def get_webm_links(board_id: str, thread_list: list) -> Generator[List[str], None, None]:
+def get_video_links_from_file_list(file_list: List[dict]) -> List[str]:
+    """Returns a list of webm/mp4 links from the given file list."""
+    return [
+        file_info["path"]
+        for file_info in file_list
+        if ".webm" in file_info["path"] or ".mp4" in file_info["path"]
+    ]
+
+
+def get_webm_links(board_id: str, thread_list: List[str]) -> Generator[List[str], None, None]:
     """Generator that returns a list of webm/mp4 links in threads in the given board.
 
     Args:
@@ -196,19 +205,17 @@ def get_webm_links(board_id: str, thread_list: list) -> Generator[List[str], Non
     thread_list_len = len(thread_list)
     for index, thread in enumerate(thread_list):
         thread_json = get_thread_json(board_id, str(thread))
-        flat_file_list = get_flatten_list(get_files_list(get_posts_list(thread_json)))
+        file_list = get_files_list(get_posts_list(thread_json))
+        flattened_file_list = get_flatten_list(file_list)
+        video_links = get_video_links_from_file_list(flattened_file_list)
         if args.verbose:
             draw_progress_bar(
                 index,
                 thread_list_len,
                 thread_json["title"],
-                str(len(flat_file_list)),
+                str(len(video_links)),
             )
-        yield [
-            k["path"]
-            for k in flat_file_list
-            if ".webm" in k["path"] or ".mp4" in k["path"]
-        ]
+        yield video_links
 
 
 def gen_webm_list(board_id: str, thread_list: list) -> list:
