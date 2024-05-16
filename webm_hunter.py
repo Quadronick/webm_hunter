@@ -5,9 +5,7 @@ import argparse
 import requests
 import sys
 
-parser = argparse.ArgumentParser(
-    description="Generate M3U playlist full of strange videos"
-)
+parser = argparse.ArgumentParser(description="Generate M3U playlist full of strange videos")
 parser.add_argument(
     "--board",
     "-b",
@@ -251,9 +249,7 @@ thread_list = (
     get_filtered_threads_list(args.board, args.filter)
     if args.filter
     else (
-        get_excluded_threads_list(args.board, args.exclude)
-        if args.exclude
-        else get_threads_list(args.board)
+        get_excluded_threads_list(args.board, args.exclude) if args.exclude else get_threads_list(args.board)
     )
 )
 
